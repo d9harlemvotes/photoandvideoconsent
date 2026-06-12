@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>D9 Harlem Votes™ — Photo &amp; Video Consent</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --red:#C8102E;
+    --ink:#16161A;
+    --green:#1B7A4B;
+    --paper:#ffffff;
+    --shell:#f4f3ef;
+    --line:#dcdbd5;
+    --label:#6b7280;
+    --field:#fafaf8;
+    --focus:#1B7A4B;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{
+    background:var(--shell);
+    color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    padding:18px 14px calc(40px + env(safe-area-inset-bottom));
+    display:flex;justify-content:center;
+  }
+  .card{
+    width:100%;max-width:540px;background:var(--paper);
+    border:1px solid var(--line);border-radius:14px;overflow:hidden;
+    box-shadow:0 1px 0 rgba(0,0,0,.02),0 18px 40px -28px rgba(0,0,0,.35);
+  }
+  .tricolor{height:7px;display:flex}
+  .tricolor i{flex:1}
+  .tricolor i:nth-child(1){background:var(--red)}
+  .tricolor i:nth-child(2){background:var(--ink)}
+  .tricolor i:nth-child(3){background:var(--green)}
+
+  header{padding:20px 22px 4px}
+  .brand{font-family:Georgia,"Times New Roman",serif;font-weight:700;font-size:25px;letter-spacing:.2px;margin:0}
+  .tag{color:var(--label);font-size:12.5px;margin:3px 0 0}
+  .pad{padding:18px 22px 24px}
+
+  h1{font-family:Georgia,"Times New Roman",serif;font-size:22px;margin:18px 0 2px}
+  .eyebrow{color:var(--green);font-size:11.5px;font-weight:700;letter-spacing:.9px;text-transform:uppercase;margin:0}
+  .blurb{font-size:13.5px;color:#3f4047;margin:10px 0 0;line-height:1.5}
+  .legal{font-size:13px;color:#3f4047;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:14px 0 4px}
+  .legal b{font-weight:600}
+
+  /* segmented mode toggle */
+  .seg{display:flex;background:var(--field);border:1px solid var(--line);border-radius:10px;padding:4px;margin:6px 0 4px;gap:4px}
+  .seg button{flex:1;border:0;background:transparent;font:inherit;font-weight:600;font-size:14px;color:var(--label);
+    padding:10px 6px;border-radius:7px;cursor:pointer;transition:.15s}
+  .seg button[aria-pressed="true"]{background:var(--ink);color:#fff}
+
+  details.setup{border:1px solid var(--line);border-radius:10px;margin:14px 0 0;background:var(--field)}
+  details.setup>summary{cursor:pointer;list-style:none;padding:11px 14px;font-size:13px;font-weight:600;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+  details.setup>summary::-webkit-details-marker{display:none}
+  details.setup>summary .chev{color:var(--label);font-weight:400;font-size:12px}
+  details.setup[open]>summary .chev::after{content:"Hide"}
+  details.setup:not([open])>summary .chev::after{content:"Edit"}
+  .setup-body{padding:2px 14px 14px}
+
+  label{display:block;margin-top:14px}
+  .lab{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--label);text-transform:uppercase;margin-bottom:5px}
+  input[type=text],input[type=date],input[type=number]{
+    width:100%;font:inherit;font-size:16px;padding:12px 13px;border:1px solid var(--line);
+    border-radius:9px;background:var(--field);color:var(--ink)
+  }
+  select{
+    width:100%;font:inherit;font-size:16px;padding:12px 13px;border:1px solid var(--line);
+    border-radius:9px;background:var(--field);color:var(--ink)
+  }
+  input:focus,select:focus{outline:2px solid var(--focus);outline-offset:1px;border-color:var(--focus)}
+  .row{display:flex;gap:12px}
+  .row>label{flex:1}
+
+  .sigwrap{margin-top:6px}
+  .sigbox{position:relative;border:1px solid var(--line);border-radius:9px;background:#fff;touch-action:none}
+  .sigbox canvas{display:block;width:100%;height:160px;border-radius:9px}
+  .sigbox .guide{position:absolute;left:14px;right:14px;bottom:34px;border-bottom:1px dashed #cfcfca;pointer-events:none}
+  .sigbox .hint{position:absolute;left:14px;bottom:12px;color:#b9b9b3;font-size:12px;pointer-events:none}
+  .sigbox.signed .hint,.sigbox.signed .guide{opacity:0}
+  .clearsig{margin-top:7px;background:none;border:0;color:var(--red);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px}
+
+  .consent-check{display:flex;gap:11px;align-items:flex-start;margin-top:18px;font-size:13.5px;line-height:1.45;color:#3f4047}
+  .consent-check input{width:21px;height:21px;margin:1px 0 0;accent-color:var(--green);flex:none}
+
+  .submit{margin-top:20px;width:100%;border:0;background:var(--red);color:#fff;font:inherit;font-weight:700;font-size:16px;
+    padding:15px;border-radius:11px;cursor:pointer;transition:.15s;letter-spacing:.2px}
+  .submit:disabled{background:#d9b8be;cursor:not-allowed}
+  .submit:not(:disabled):active{transform:translateY(1px)}
+
+  .foot{font-size:11.5px;color:var(--label);line-height:1.5;margin-top:18px;border-top:1px solid var(--line);padding-top:14px}
+  .foot .strong{color:var(--ink);font-weight:600}
+
+  .links{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+  .ghost{background:none;border:0;color:var(--green);font:inherit;font-size:12.5px;font-weight:600;cursor:pointer;text-decoration:underline;padding:4px}
+  .pending{font-size:12px;color:var(--label)}
+  .pending b{color:var(--red)}
+
+  /* success */
+  .done{display:none;text-align:center;padding:46px 24px}
+  .done.show{display:block}
+  .check{width:62px;height:62px;border-radius:50%;background:var(--green);margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+  .check svg{width:30px;height:30px;stroke:#fff;stroke-width:3;fill:none}
+  .done h2{font-family:Georgia,serif;font-size:23px;margin:0 0 6px}
+  .done p{color:#3f4047;font-size:14px;margin:0 0 22px}
+  .again{border:1px solid var(--ink);background:#fff;color:var(--ink);font:inherit;font-weight:600;font-size:15px;padding:13px 22px;border-radius:10px;cursor:pointer}
+
+  .err{display:none;background:#fff4f3;border:1px solid #f3c9c4;color:#8a1f17;font-size:13px;border-radius:9px;padding:11px 13px;margin-top:14px}
+  .err.show{display:block}
+
+  /* QR / table-sign view */
+  #qrview{display:none}
+  #qrview.show{display:block}
+  .sign{text-align:center;padding:30px 26px 34px}
+  .sign .brand{font-size:22px}
+  .sign h2{font-family:Georgia,serif;font-size:26px;margin:18px 0 4px;line-height:1.2}
+  .sign p{color:#3f4047;font-size:14.5px;margin:0 auto;max-width:300px}
+  #qrcode{display:inline-block;margin:24px auto 6px;padding:16px;background:#fff;border:1px solid var(--line);border-radius:12px}
+  #qrcode img,#qrcode canvas{display:block}
+  .qrurl{font-size:12px;color:var(--label);word-break:break-all;margin:8px auto 0;max-width:320px}
+  .sign-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+  .sign-actions button{border:1px solid var(--line);background:#fff;color:var(--ink);font:inherit;font-weight:600;font-size:14px;padding:11px 16px;border-radius:9px;cursor:pointer}
+  .sign-actions .pri{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .hidden{display:none !important}
+
+  @media print{
+    body{background:#fff;padding:0}
+    .card{border:0;box-shadow:none;max-width:100%}
+    .sign-actions,.links,#formview{display:none !important}
+    #qrview{display:block !important}
+  }
+  @media (prefers-reduced-motion:reduce){*{transition:none !important}}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="tricolor" aria-hidden="true"><i></i><i></i><i></i></div>
+
+  <!-- ========== FORM VIEW ========== -->
+  <div id="formview">
+    <header>
+      <p class="brand">D9 Harlem Votes™</p>
+      <p class="tag">Nonpartisan civic engagement coalition · Harlem, New York</p>
+    </header>
+
+    <div class="pad">
+      <p class="eyebrow" id="eyebrow">Optional · for featured, print, or press use</p>
+      <h1 id="formtitle">Adult Photo &amp; Video Consent</h1>
+      <p class="blurb" id="blurb"></p>
+
+      <div class="seg" role="group" aria-label="Who is signing">
+        <button type="button" id="btnAdult" aria-pressed="true" onclick="setMode('adult')">Adult</button>
+        <button type="button" id="btnMinor" aria-pressed="false" onclick="setMode('minor')">Minor (parent signs)</button>
+      </div>
+
+      <div class="legal" id="legal"></div>
+
+      <!-- Table setup: lead fills once per shift -->
+      <details class="setup" id="setup">
+        <summary>Table setup <span class="chev"></span></summary>
+        <div class="setup-body">
+          <label><span class="lab">Activation site</span>
+            <select id="site"></select></label>
+          <label id="siteOtherWrap" class="hidden"><span class="lab">Type the site</span>
+            <input type="text" id="siteOther" placeholder="Corner / location" autocomplete="off"></label>
+          <div class="row">
+            <label><span class="lab">Date of activation</span>
+              <input type="date" id="adate"></label>
+            <label><span class="lab">Collected by</span>
+              <input type="text" id="collected" placeholder="Volunteer name" autocomplete="off"></label>
+          </div>
+        </div>
+      </details>
+
+      <!-- ADULT fields -->
+      <div id="adultFields">
+        <label><span class="lab">Full name</span>
+          <input type="text" id="a_name" autocomplete="name"></label>
+      </div>
+
+      <!-- MINOR fields -->
+      <div id="minorFields" class="hidden">
+        <div class="row">
+          <label style="flex:2"><span class="lab">Child's full name</span>
+            <input type="text" id="m_child"></label>
+          <label style="flex:1"><span class="lab">Age</span>
+            <input type="number" id="m_age" min="0" max="17" inputmode="numeric"></label>
+        </div>
+        <div class="row">
+          <label><span class="lab">Parent / legal guardian name</span>
+            <input type="text" id="m_guardian" autocomplete="name"></label>
+          <label><span class="lab">Relationship to child</span>
+            <input type="text" id="m_rel" placeholder="e.g. Mother"></label>
+        </div>
+      </div>
+
+      <!-- Signature -->
+      <div class="sigwrap">
+        <span class="lab" id="siglab">Signature</span>
+        <div class="sigbox" id="sigbox">
+          <canvas id="sig"></canvas>
+          <div class="guide"></div>
+          <div class="hint">Sign with your finger</div>
+        </div>
+        <button type="button" class="clearsig" onclick="clearSig()">Clear signature</button>
+      </div>
+
+      <label class="consent-check">
+        <input type="checkbox" id="agree">
+        <span id="agreetext"></span>
+      </label>
+
+      <div class="err" id="err"></div>
+
+      <button class="submit" id="submitBtn" onclick="submitForm()">Add my consent</button>
+
+      <div class="links">
+        <button class="ghost" onclick="showQR()">Table sign &amp; QR code</button>
+        <span class="pending" id="pending"></span>
+      </div>
+
+      <div class="foot">
+        <p style="margin:0 0 11px;color:#3f4047;font-size:12px;line-height:1.55;font-style:italic">D9 Harlem Votes™ is a nonpartisan civic education coalition comprised of members of historically Black fraternities and sororities serving Harlem, New York.</p>
+        <span class="strong" id="footstrong">This signed form stays with the Activation Lead.</span><br>
+        To withdraw consent for future use, contact d9harlemvotes@gmail.com. Materials already printed or published cannot be recalled.<br>
+        © 2026 D9 Harlem Votes™. Governed by the laws of the State of New York.
+      </div>
+    </div>
+
+    <!-- success -->
+    <div class="done" id="done">
+      <div class="check"><svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg></div>
+      <h2>Consent recorded</h2>
+      <p id="donemsg">Thank you. Your consent has been added.</p>
+      <button class="again" onclick="resetForm()">Add another consent</button>
+    </div>
+  </div>
+
+  <!-- ========== QR / TABLE SIGN VIEW ========== -->
+  <div id="qrview">
+    <div class="sign">
+      <p class="brand" style="font-family:Georgia,serif;font-weight:700;font-size:22px;margin:0">D9 Harlem Votes™</p>
+      <h2>Photo &amp; Video Consent</h2>
+      <p>Scan with your phone camera to add your consent. Takes about 30 seconds.</p>
+      <div id="qrcode"></div>
+      <p class="qrurl" id="qrurl"></p>
+      <div class="sign-actions">
+        <button class="pri" onclick="window.print()">Print this sign</button>
+        <button onclick="downloadQR()">Download QR (PNG)</button>
+        <button onclick="hideQR()">Back to form</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — set this to your Google Apps Script Web App URL.
+   Until set, submissions are saved on this device and queued
+   to resend (no consent is lost). Swap in the /exec URL and
+   redeploy; pending entries will flush on the next submit.
+   ============================================================ */
+var SUBMIT_ENDPOINT = "https://script.google.com/macros/s/AKfycbxRe_jLVC7CjF0Gj46hvA2uNLnFmQ56dCJTxhuPikwC1zEsaTm38pz6fTZwkcxb5zGm/exec";
+
+/* ---------- copy that mirrors the print forms ---------- */
+var COPY = {
+  adult:{
+    eyebrow:"Optional · for featured, print, or press use",
+    title:"Adult Photo &amp; Video Consent",
+    blurb:"For everyday crowd shots on our own social media, a verbal yes at the table is enough. Use this form when an adult will be featured, or when an image may be used beyond our social media — in printed materials or in news or press coverage. The default is still nothing identifiable, no faces.",
+    legal:"I give D9 Harlem Votes™ permission to photograph, film, or record me, and to use my image, voice, name, and likeness, in any media, in perpetuity, for purposes related to D9 Harlem Votes™, including social media; printed and digital materials; and news, press, or third-party publication of D9 Harlem Votes™ content.",
+    siglab:"Signature",
+    agree:"I have read the consent above and I agree.",
+    foot:"This signed form stays with the Activation Lead."
+  },
+  minor:{
+    eyebrow:"Parent or legal guardian signature required",
+    title:"Minor Photo &amp; Video Consent",
+    blurb:"Our volunteers capture the work, not faces. The default is nothing identifiable, no faces. A minor’s identifiable image is never used without a parent or legal guardian’s written consent. This consent matters most because an image may be used beyond our own social media — including in printed materials and in news or press coverage.",
+    legal:"I am the parent or legal guardian of the minor named below. I give D9 Harlem Votes™ permission to photograph, film, or record my child, and to use my child’s image, voice, name, and likeness, in any media, in perpetuity, for purposes related to D9 Harlem Votes™. I understand this includes use on D9 Harlem Votes™ social media; in printed and digital materials; and in news, press, or third-party publication of D9 Harlem Votes™ content.",
+    siglab:"Parent / legal guardian signature",
+    agree:"I am the parent or legal guardian and I agree to the consent above.",
+    foot:"This signed form stays with the Activation Lead. No signed form, no identifiable photo, no post."
+  }
+};
+
+var mode="adult";
+var QUEUE_KEY="d9hv_consent_queue";
+
+/* ---------- ACTIVATION SITES ----------
+   Add or edit corners here. The lead picks one per shift in Table Setup.
+   "Other" is always available for an unlisted spot.                      */
+var SITES = [
+  "E. 125th St \u2014 between Madison & Park Ave"
+  // , "Next corner here"
+  // , "Next corner here"
+];
+
+/* ---------- safe storage (works on GitHub Pages, no-ops if blocked) ---------- */
+function lsGet(k){try{return localStorage.getItem(k)}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem(k,v)}catch(e){}}
+
+/* ---------- URL params can prefill table setup ---------- */
+function param(n){return new URLSearchParams(location.search).get(n)||""}
+
+function setMode(m){
+  mode=m;
+  var c=COPY[m];
+  document.getElementById("btnAdult").setAttribute("aria-pressed",m==="adult");
+  document.getElementById("btnMinor").setAttribute("aria-pressed",m==="minor");
+  document.getElementById("eyebrow").textContent=c.eyebrow;
+  document.getElementById("formtitle").innerHTML=c.title;
+  document.getElementById("blurb").textContent=c.blurb;
+  document.getElementById("legal").textContent=c.legal;
+  document.getElementById("siglab").textContent=c.siglab;
+  document.getElementById("agreetext").textContent=c.agree;
+  document.getElementById("footstrong").textContent=c.foot;
+  document.getElementById("adultFields").classList.toggle("hidden",m!=="adult");
+  document.getElementById("minorFields").classList.toggle("hidden",m!=="minor");
+  resizeCanvas();
+}
+
+/* ================= signature pad ================= */
+var cv=document.getElementById("sig"), ctx=cv.getContext("2d"), drawing=false, hasInk=false, last=null;
+function resizeCanvas(){
+  var prev=hasInk?cv.toDataURL():null;
+  var r=cv.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+  cv.width=r.width*dpr; cv.height=160*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round"; ctx.strokeStyle="#16161A";
+  if(prev){var img=new Image();img.onload=function(){ctx.drawImage(img,0,0,r.width,160)};img.src=prev;}
+}
+function pos(e){var r=cv.getBoundingClientRect();var t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}}
+function start(e){e.preventDefault();drawing=true;last=pos(e);}
+function move(e){
+  if(!drawing)return;e.preventDefault();
+  var p=pos(e);
+  ctx.beginPath();ctx.moveTo(last.x,last.y);ctx.lineTo(p.x,p.y);ctx.stroke();
+  last=p;
+  if(!hasInk){hasInk=true;document.getElementById("sigbox").classList.add("signed");}
+}
+function end(){drawing=false;}
+cv.addEventListener("mousedown",start);cv.addEventListener("mousemove",move);
+window.addEventListener("mouseup",end);
+cv.addEventListener("touchstart",start,{passive:false});
+cv.addEventListener("touchmove",move,{passive:false});
+cv.addEventListener("touchend",end);
+function clearSig(){ctx.clearRect(0,0,cv.width,cv.height);hasInk=false;document.getElementById("sigbox").classList.remove("signed");}
+
+/* ================= submit ================= */
+function showErr(msg){var e=document.getElementById("err");e.textContent=msg;e.classList.add("show");}
+function hideErr(){document.getElementById("err").classList.remove("show");}
+
+function collect(){
+  var base={
+    type:mode,
+    consent:true,
+    consentText:COPY[mode].legal.replace(/&amp;/g,"&"),
+    activationSite:getSite(),
+    dateOfActivation:document.getElementById("adate").value,
+    collectedBy:document.getElementById("collected").value.trim(),
+    signature:hasInk?cv.toDataURL("image/png"):"",
+    signedAt:new Date().toISOString(),
+    page:location.href
+  };
+  if(mode==="adult"){
+    base.fullName=document.getElementById("a_name").value.trim();
+  }else{
+    base.childName=document.getElementById("m_child").value.trim();
+    base.childAge=document.getElementById("m_age").value.trim();
+    base.guardianName=document.getElementById("m_guardian").value.trim();
+    base.relationship=document.getElementById("m_rel").value.trim();
+    base.fullName=base.guardianName; // signer
+  }
+  return base;
+}
+
+function validate(d){
+  if(!document.getElementById("agree").checked)return "Please check the box to agree to the consent.";
+  if(mode==="adult"){ if(!d.fullName)return "Please enter your full name."; }
+  else{
+    if(!d.childName)return "Please enter the child's full name.";
+    if(!d.guardianName)return "Please enter the parent or guardian's name.";
+  }
+  if(!d.signature)return "Please add a signature above.";
+  return null;
+}
+
+function queuePush(d){
+  var q=JSON.parse(lsGet(QUEUE_KEY)||"[]"); q.push(d); lsSet(QUEUE_KEY,JSON.stringify(q)); updatePending();
+}
+function queueGet(){return JSON.parse(lsGet(QUEUE_KEY)||"[]")}
+function queueSet(a){lsSet(QUEUE_KEY,JSON.stringify(a));updatePending();}
+function updatePending(){
+  var n=queueGet().length, el=document.getElementById("pending");
+  el.innerHTML=n?('<b>'+n+'</b> waiting to send · <a href="#" onclick="flush(event)" style="color:inherit">retry</a>'):"";
+}
+
+function sendOne(d){
+  if(!SUBMIT_ENDPOINT)return Promise.reject(new Error("no endpoint"));
+  var body=new URLSearchParams();
+  Object.keys(d).forEach(function(k){body.append(k,d[k]);});
+  return fetch(SUBMIT_ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:body.toString()});
+}
+
+function flush(e){
+  if(e)e.preventDefault();
+  var q=queueGet(); if(!q.length||!SUBMIT_ENDPOINT)return;
+  var remaining=[],chain=Promise.resolve();
+  q.forEach(function(d){chain=chain.then(function(){return sendOne(d).catch(function(){remaining.push(d);});});});
+  chain.then(function(){queueSet(remaining);});
+}
+
+function submitForm(){
+  hideErr();
+  var d=collect();
+  var v=validate(d);
+  if(v){showErr(v);return;}
+  var btn=document.getElementById("submitBtn"); btn.disabled=true; btn.textContent="Saving…";
+
+  // Always save locally first so nothing is lost on the curb.
+  queuePush(d);
+
+  var finish=function(sent){
+    document.getElementById("formview").querySelector(".pad").style.display="none";
+    document.getElementById("done").classList.add("show");
+    document.getElementById("donemsg").textContent = sent
+      ? "Thank you. "+(mode==="minor"?"Your child's":"Your")+" consent has been added."
+      : "Saved on this device. It will send automatically when there’s a connection.";
+  };
+
+  if(SUBMIT_ENDPOINT){
+    sendOne(d).then(function(){
+      // no-cors response is opaque; treat resolved as accepted, clear just-sent item
+      var q=queueGet(); q.pop(); queueSet(q);
+      finish(true);
+    }).catch(function(){ finish(false); });
+  }else{
+    finish(false);
+  }
+}
+
+function resetForm(){
+  document.getElementById("a_name").value="";
+  document.getElementById("m_child").value="";
+  document.getElementById("m_age").value="";
+  document.getElementById("m_guardian").value="";
+  document.getElementById("m_rel").value="";
+  document.getElementById("agree").checked=false;
+  clearSig();
+  document.getElementById("done").classList.remove("show");
+  document.getElementById("formview").querySelector(".pad").style.display="";
+  document.getElementById((mode==="adult"?"a_name":"m_child")).focus();
+  window.scrollTo(0,0);
+}
+
+/* ================= QR / table sign ================= */
+function formURL(){return location.origin+location.pathname;}
+var qrBuilt=false;
+function showQR(){
+  document.getElementById("formview").style.display="none";
+  document.getElementById("qrview").classList.add("show");
+  document.getElementById("qrurl").textContent=formURL();
+  if(!qrBuilt){
+    try{
+      new QRCode(document.getElementById("qrcode"),{text:formURL(),width:240,height:240,
+        colorDark:"#16161A",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+      qrBuilt=true;
+    }catch(e){
+      document.getElementById("qrcode").textContent="QR will appear once the page is hosted online.";
+    }
+  }
+  window.scrollTo(0,0);
+}
+function hideQR(){
+  document.getElementById("qrview").classList.remove("show");
+  document.getElementById("formview").style.display="";
+}
+function downloadQR(){
+  var img=document.querySelector("#qrcode img")||document.querySelector("#qrcode canvas");
+  if(!img){return;}
+  var src=img.tagName==="IMG"?img.src:img.toDataURL("image/png");
+  var a=document.createElement("a");a.href=src;a.download="D9_Harlem_Votes_Consent_QR.png";a.click();
+}
+
+/* ================= site dropdown ================= */
+function buildSites(selected){
+  var sel=document.getElementById("site");
+  sel.innerHTML="";
+  var ph=document.createElement("option");
+  ph.value="";ph.textContent="Choose a site\u2026";sel.appendChild(ph);
+  SITES.forEach(function(s){
+    var o=document.createElement("option");o.value=s;o.textContent=s;sel.appendChild(o);
+  });
+  var other=document.createElement("option");
+  other.value="__other__";other.textContent="Other (type it in)\u2026";sel.appendChild(other);
+
+  if(selected){
+    if(SITES.indexOf(selected)>=0){ sel.value=selected; }
+    else { sel.value="__other__"; document.getElementById("siteOther").value=selected; }
+  }
+  toggleOther();
+}
+function toggleOther(){
+  var isOther=document.getElementById("site").value==="__other__";
+  document.getElementById("siteOtherWrap").classList.toggle("hidden",!isOther);
+}
+function getSite(){
+  var sel=document.getElementById("site");
+  if(sel.value==="__other__")return document.getElementById("siteOther").value.trim();
+  return sel.value;
+}
+
+/* ================= init ================= */
+(function init(){
+  // prefill table setup from URL params or saved values
+  var site=param("site")||lsGet("d9hv_site")||"";
+  var coll=param("by")||lsGet("d9hv_by")||"";
+  var ad=param("date")||lsGet("d9hv_date")||"";
+  buildSites(site);
+  document.getElementById("collected").value=coll;
+  document.getElementById("adate").value=ad;
+
+  // persist setup as the lead edits it
+  function persistSetup(){
+    lsSet("d9hv_site",getSite());
+    lsSet("d9hv_by",document.getElementById("collected").value);
+    lsSet("d9hv_date",document.getElementById("adate").value);
+  }
+  document.getElementById("site").addEventListener("change",function(){toggleOther();persistSetup();});
+  document.getElementById("siteOther").addEventListener("input",persistSetup);
+  document.getElementById("collected").addEventListener("change",persistSetup);
+  document.getElementById("adate").addEventListener("change",persistSetup);
+
+  if(getSite()&&coll){document.getElementById("setup").open=false;}else{document.getElementById("setup").open=true;}
+
+  // QR codes can deep-link straight to the right form: ?for=adult or ?for=minor
+  var pre=(param("for")||param("type")||param("mode")||"").toLowerCase();
+  setMode(pre==="minor"?"minor":"adult");
+  resizeCanvas();
+  updatePending();
+  if(SUBMIT_ENDPOINT)flush();
+})();
+window.addEventListener("resize",resizeCanvas);
+window.addEventListener("orientationchange",function(){setTimeout(resizeCanvas,200)});
+</script>
+</body>
+</html>
